@@ -1,6 +1,5 @@
-from ast import List
 from datetime import datetime
-
+from decimal import Decimal
 
 from sqlalchemy import (
     String,
@@ -8,13 +7,14 @@ from sqlalchemy import (
     Table,
     Column,
     DateTime,
-    Float, UniqueConstraint,
+    UniqueConstraint,
+    Numeric,
 )
 
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from db import Base
+from app.db import Base
 
 booking_seats = Table(
     "booking_seats",
@@ -54,14 +54,19 @@ class Venue(Base):
         nullable=False
     )
 
-    events: Mapped[list["Event"]] = relationship(back_populates="venue")
-    seats: Mapped[list["Seat"]] = relationship(back_populates="venue")
+    events: Mapped[list["Event"]] = relationship(
+        back_populates="venue"
+
+    )
+    seats: Mapped[list["Seat"]] = relationship(
+        back_populates="venue"
+    )
 
 
 class Seat(Base):
     __tablename__ = "seats"
     __table_args__ = (
-        UniqueConstraint("venue_id", "seat_number"),
+        UniqueConstraint("venue_id", "seat_num"),
     )
 
     id: Mapped[int] = mapped_column(
@@ -69,12 +74,13 @@ class Seat(Base):
         index=True
     )
 
-    venue_id: Mapped[int] = mapped_column(
-        ForeignKey("venues.id"),
+    seat_num: Mapped[str] = mapped_column(
+        String(20),
         nullable=False
     )
 
-    seat_numer: Mapped[int] = mapped_column(
+    venue_id: Mapped[int] = mapped_column(
+        ForeignKey("venues.id"),
         nullable=False
     )
 
@@ -114,6 +120,12 @@ class Event(Base):
         nullable=False
     )
 
+    venue: Mapped["Venue"] = relationship(
+        back_populates="events")
+
+    bookings: Mapped[list["Booking"]] = relationship(
+        back_populates="event"
+    )
 
 
 class Booking(Base):
@@ -129,22 +141,37 @@ class Booking(Base):
         nullable=False
     )
 
-    seats: Mapped[list["Seat"]] = relationship(
-        secondary=booking_seats
-    )
-
     booking_date: Mapped[datetime] = mapped_column(
         DateTime,
-        nullable=False
+        nullable=False,
+        default=datetime.now
     )
 
-    total_price: Mapped[float] = mapped_column(
+    total_price: Mapped[Decimal] = mapped_column(
+        Numeric(10,2),
         nullable=False
     )
 
     status: Mapped[str] = mapped_column(
-        nullable=False
+        String(39),
+        nullable=False,
+        default="pending"
     )
+
+    event: Mapped["Event"] = relationship(
+        back_populates="bookings"
+    )
+
+    seats: Mapped[list["Seat"]] = relationship(
+        secondary=booking_seats,
+        back_populates="bookings",
+    )
+
+    payments: Mapped[list["Payment"]] = relationship(
+        back_populates="booking"
+    )
+
+
 
 class Payment(Base):
     __tablename__ = "payments"
@@ -159,21 +186,30 @@ class Payment(Base):
         nullable=False
     )
 
-    amount:Mapped[float] = mapped_column(
+    amount:Mapped[Decimal] = mapped_column(
+        Numeric(10, 2),
         nullable=False
     )
 
     payment_method: Mapped[str] = mapped_column(
+        String(50),
         nullable=False
     )
 
     date: Mapped[datetime] = mapped_column(
         DateTime,
-        nullable=False
+        nullable=False,
+        default=datetime.now
     )
 
     status: Mapped[str] = mapped_column(
-        nullable=False
+        String(30),
+        nullable=False,
+        default="pending"
+    )
+
+    booking: Mapped["Booking"] = relationship(
+        back_populates="payments"
     )
 
 

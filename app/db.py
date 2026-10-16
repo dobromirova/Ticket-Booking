@@ -3,14 +3,11 @@ from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 # Database URL
 SQLALCHEMY_DATABASE_URL = (
-    "postgresql+psycopg://postgres:pass@localhost:5433/pytickets"
+    "postgresql+psycopg://postgres:0552@localhost:5433/pytickets"
 )
 
 # Create database engine
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
-    connect_args={"check_same_thread": False}
-)
+engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
 # Create session factory
 SessionLocal = sessionmaker(
