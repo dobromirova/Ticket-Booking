@@ -1,0 +1,10 @@
+[project]
+name = "pythonproject"
+version = "0.1.0"
+requires-python = ">=3.15"
+dependencies = [
+    "click>=8.5.0",
+    "fastapi>=0.143.1",
+    "mapped>=20.4.2",
+    "sqlalchemy>=2.1.4",
+]
