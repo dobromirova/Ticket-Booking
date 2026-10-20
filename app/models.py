@@ -54,6 +54,9 @@ class Venue(Base):
         nullable=False
     )
 
+    ##TODO: DB cannot have list ->
+    ## explanation: doesn't store a list, it defines a relationship between already existing tables
+
     events: Mapped[list["Event"]] = relationship(
         back_populates="venue"
 
@@ -93,7 +96,6 @@ class Seat(Base):
         back_populates="seats",
     )
 
-    ## TODO: explanations on secondary, back populates and relations.
 
 
 class Event(Base):
